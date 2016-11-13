@@ -15,6 +15,11 @@ export class GithubService implements OnInit {
     ngOnInit() {
 
     }
+
+    updateUser(username: string) {
+        this.username = username;
+    }
+
     getUsers() {
         return this.http.get(this._url + this.username + '?client_id=' + this.client_id + '&client_secret=' + this.client_secret)
             .map((response: Response) => response.json());
