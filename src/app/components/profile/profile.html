@@ -1,0 +1,96 @@
+<div class="row">
+    <div class="col-md-12">
+        <form class="well">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter Github Username..." 
+                [ngModel]="username()" (ngModelChange)="onUsernameChange($event)" name="username">
+            </div>
+        </form>
+    </div>
+</div>
+
+@if(loading()) {
+<div class="alert alert-info" role="alert">
+    <strong>Loading...</strong> Fetching user data from GitHub.
+</div>
+}
+
+@if(error()) {
+<div class="alert" [ngClass]="{
+        'alert-warning': error()?.isRateLimitError,
+        'alert-danger': !error()?.isRateLimitError
+    }" role="alert">
+    <h4 class="alert-heading">
+        @if(error()?.isRateLimitError) {
+        <strong>⚠️ Rate Limit Exceeded</strong>
+        } @else {
+        <strong>Error</strong>
+        }
+    </h4>
+    <p>{{ error()?.message }}</p>
+    @if(error()?.isRateLimitError) {
+    <hr>
+    <p class="mb-0">
+        <small>
+            GitHub API has a rate limit of 60 requests per hour for unauthenticated requests.
+            You can increase this to 5,000 requests/hour by adding your GitHub credentials to the environment file.
+            @if(error()?.documentation_url) {
+            <a [href]="error()?.documentation_url" target="_blank">Learn more</a>
+            }
+        </small>
+    </p>
+    }
+</div>
+}
+
+@if(user()) {
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{user()?.name}}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <img [src]="user()?.avatar_url" class="img-thumbnail">
+                    <a class="btn btn-default btn-block" target="_blank" href="{{user()?.html_url}}">View Profile</a>
+                </div>
+                <div class="col-md-8">
+                    <div class="stats">
+                        <span class="label label-default">{{user()?.public_repos}} Public Repos</span>
+                        <span class="label label-primary">{{user()?.public_gists}} Public Gists</span>
+                        <span class="label label-success">{{user()?.followers}} Followers</span>
+                        <span class="label label-info">{{user()?.following}} Following</span>
+                    </div>
+                    <br>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Username :</strong>{{user()?.login}}</li>
+                        <li class="list-group-item"><strong>Location :</strong>{{user()?.location}}</li>
+                        <li class="list-group-item"><strong>Email :</strong>{{user()?.email}}</li>
+                        <li class="list-group-item"><strong>Blog :</strong>{{user()?.blog}}</li>
+                        <li class="list-group-item"><strong>Member Since :</strong>{{user()?.created_at}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Repositories</h3>
+        </div>
+        <div class="panel-body">
+            @for(item of repos(); track item.id) {
+                <div class="row">
+                    <div class="col-md-9">
+                        <h4><a href="{{item?.html_url}}">{{item?.name}}</a></h4>
+                        <p>{{item?.description}}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="label label-default">{{item?.watchers_count}} Watchers</span>
+                        <span class="label label-primary">{{item?.forks_count}} Forks</span>
+                    </div>
+                </div>
+                <hr>
+            }
+        </div>
+    </div>
+}
